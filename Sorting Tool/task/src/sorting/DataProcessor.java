@@ -1,8 +1,6 @@
 package sorting;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public abstract class DataProcessor<T> {
 
@@ -12,8 +10,15 @@ public abstract class DataProcessor<T> {
     T max;
     int maxCount;
     int maxPercent;
+    Comparator<T> comparator;
 
     abstract void readData();
+
+    void sortData() {
+        if (Objects.nonNull(comparator)){
+            data.sort(comparator);
+        }
+    }
 
     int getSize() {
         return data.size();
@@ -39,6 +44,10 @@ public abstract class DataProcessor<T> {
         return maxPercent;
     }
 
+    public Comparator<T> getComparator() {
+        return comparator;
+    }
+
     public void setMax(T max) {
         this.max = max;
     }
@@ -48,6 +57,6 @@ public abstract class DataProcessor<T> {
     }
 
     public void setMaxPercent() {
-        maxPercent = (int) (((double) maxCount / (double) getSize()) *100);
+        maxPercent = (int) (((double) maxCount / (double) getSize()) * 100);
     }
 }

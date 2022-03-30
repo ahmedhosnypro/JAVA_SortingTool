@@ -8,6 +8,12 @@ public class App {
         if (args.length == 0) {
             processWords();
         } else {
+            for (var arg : args) {
+                if (arg.equalsIgnoreCase("-sortIntegers")) {
+                    sortIntegers();
+                    return;
+                }
+            }
             if (args[0].equalsIgnoreCase("-dataType")) {
                 String dataType = args[1];
                 switch (dataType) {
@@ -28,6 +34,15 @@ public class App {
         System.out.println("Total " + dataProcessor.getType().getTotalToPrint() + ": " + dataProcessor.getSize() + ".\n"
                 + "The " + dataProcessor.getType().getMaxToPrint() + ": " + dataProcessor.getMax()
                 + " (" + dataProcessor.getMaxCount() + " time(s), " + dataProcessor.getMaxPercent() + "%).");
+    }
+
+    private static void sortIntegers() {
+        DataProcessor<Long> dataProcessor = new LongProcessor();
+        dataProcessor.readData();
+        dataProcessor.sortData();
+        System.out.print("Total " + dataProcessor.getType().getTotalToPrint() + ": " + dataProcessor.getSize() + ".\n"
+                + "Sorted data: ");
+        dataProcessor.getData().forEach(d -> System.out.print(d + " "));
     }
 
     private static void processLine() {
