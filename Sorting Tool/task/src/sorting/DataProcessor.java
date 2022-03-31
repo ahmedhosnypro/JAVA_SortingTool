@@ -22,24 +22,11 @@ public abstract class DataProcessor<T> {
     };
     TreeMap<T, Integer> countSortedDataMap = new TreeMap<>(counterComparator);
     DataType type;
-    T max;
-    int maxCount;
-    int maxPercent;
-
 
     abstract void readData();
 
-    void sort(String sortingType) {
-        switch (sortingType) {
-            case "natural" -> naturalSort();
-            case "byCount" -> createCountSortedDataMap();
-        }
-    }
-
     void naturalSort() {
-        naturalSortedData = data.stream()
-                .sorted(naturalComparator)
-                .collect(Collectors.toCollection(ArrayList::new));
+        naturalSortedData = data.stream().sorted(naturalComparator).collect(Collectors.toCollection(ArrayList::new));
     }
 
     void createCountSortedDataMap() {
@@ -52,66 +39,22 @@ public abstract class DataProcessor<T> {
         }
     }
 
-    public ArrayList<T> getData() {
-        return data;
-    }
-
     int getSize() {
         return data.size();
-    }
-
-    public Comparator<T> getNaturalComparator() {
-        return naturalComparator;
-    }
-
-    public Comparator<T> getCounterComparator() {
-        return counterComparator;
-    }
-
-    public DataType getType() {
-        return type;
-    }
-
-    public void setMaxPercent() {
-        maxPercent = (int) (((double) maxCount / (double) getSize()) * 100);
-    }
-
-    void analyzeMaxElement() {
-        naturalSort();
-        max = naturalSortedData.get(naturalSortedData.size() - 1);
-        maxCount = (int) getData().stream().filter(n -> Objects.equals(n, max)).count();
-        setMaxPercent();
-    }
-
-    void printMaxAnalysis() {
-        System.out.println("Total " + type.getTotalToPrint() + ": " + data.size() + ".\n"
-                + "The " + type.getMaxToPrint() + ":"
-                + type.getSeparator() + max + type.getSeparator()
-                + "(" + maxCount + " time(s), " + maxPercent + "%).");
     }
 
     void printSortAnalysis(String sortingType) {
         switch (sortingType) {
             case "natural" -> {
                 naturalSort();
-                System.out.print("Total " + type.getTotalToPrint() + ": " + data.size() + "\n"
-                        + "Sorted data:" + getNaturalSortedDataAsString());
+                System.out.print("Total " + type.getTotalToPrint() + ": " + data.size() + "\n" + "Sorted data:" + getNaturalSortedDataAsString());
             }
             case "byCount" -> {
                 naturalSort();
                 createCountSortedDataMap();
-                System.out.print("Total " + type.getTotalToPrint() + ": " + data.size() + "\n"
-                        + getCountSortedDataMapAsString());
+                System.out.print("Total " + type.getTotalToPrint() + ": " + data.size() + "\n" + getCountSortedDataMapAsString());
             }
         }
-    }
-
-    public String getDataAsString() {
-        StringBuilder out = new StringBuilder();
-        for (var d : data) {
-            out.append(type.getSeparator()).append(d).append(type.getSeparator());
-        }
-        return out.toString();
     }
 
     public String getNaturalSortedDataAsString() {
@@ -125,12 +68,7 @@ public abstract class DataProcessor<T> {
     public String getCountSortedDataMapAsString() {
         StringBuilder out = new StringBuilder();
         for (var entry : countSortedDataMap.entrySet()) {
-            out.append(entry.getKey())
-                    .append(": ")
-                    .append(entry.getValue())
-                    .append(" time(s), ")
-                    .append((int) (((double) entry.getValue() / (double) getSize()) * 100))
-                    .append("%\n");
+            out.append(entry.getKey()).append(": ").append(entry.getValue()).append(" time(s), ").append((int) (((double) entry.getValue() / (double) getSize()) * 100)).append("%\n");
         }
         return out.toString();
     }

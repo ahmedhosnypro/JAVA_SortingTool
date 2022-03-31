@@ -4,64 +4,30 @@ public class App {
     private App() {
     }
 
-    static void start(String[] args) {
-        sort(args);
-//        if (args.length == 0) {
-//            processData(DataType.WORD);
-//        } else {
-//            for (var arg : args) {
-//                if (arg.equalsIgnoreCase("-sortIntegers")) {
-//                    sortIntegers();
-//                    return;
-//                }
-//            }
-//
-//        }
-    }
-
-    private static void sortIntegers() {
-        DataProcessor<Long> dataProcessor = new LongProcessor();
-        dataProcessor.readData();
-        dataProcessor.analyzeMaxElement();
-        System.out.print("Total " + dataProcessor.getType().getTotalToPrint() + ": " + dataProcessor.getSize() + ".\n" + "Sorted data: ");
-        dataProcessor.getData().forEach(d -> System.out.print(d + " "));
-    }
-
-    private static void processData(DataType dataType) {
-        switch (dataType) {
-            case LONG -> {
-                DataProcessor<Long> dataProcessor = new LongProcessor();
-                dataProcessor.readData();
-                dataProcessor.analyzeMaxElement();
-                dataProcessor.printMaxAnalysis();
-            }
-            case LINE -> {
-                DataProcessor<String> dataProcessor = new LineProcessor();
-                dataProcessor.readData();
-                dataProcessor.analyzeMaxElement();
-                dataProcessor.printMaxAnalysis();
-            }
-            case WORD -> {
-                DataProcessor<String> dataProcessor = new WordProcessor();
-                dataProcessor.readData();
-                dataProcessor.analyzeMaxElement();
-                dataProcessor.printMaxAnalysis();
-            }
-        }
-    }
-
-    private static void sort(String[] args) {
+    static void sort(String[] args) {
         DataType dataType = DataType.LONG;
         String sortingType = "natural";
-        int readStep = 2;
-        for (int i = 0; i < args.length; i += readStep) {
-            if (args[i].equalsIgnoreCase("-sortingType") && (args.length - 1 > i && !(args[i + 1].startsWith("-")))) {
-                sortingType = args[i + 1];
-            } else if (args[i].equalsIgnoreCase("-sortingType") && ((args.length - 1 == i) || (args[i + 1].startsWith("-")))) {
-                readStep = 1;
-            }
-            if (args[i].equalsIgnoreCase("-dataType") && (args.length - 1 > i && !(args[i + 1].startsWith("-")))) {
-                dataType = DataType.valueOf(args[i + 1].toUpperCase());
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].startsWith("-")) {
+                if (!args[i].equalsIgnoreCase("-sortingType") && !args[i].equalsIgnoreCase("-dataType")) {
+                    System.out.println("\"" + args[i] + "\" is not a valid parameter. It will be skipped.");
+                } else {
+                    if (args[i].equalsIgnoreCase("-sortingType")) {
+                        if (args.length - 1 > i && !(args[i + 1].startsWith("-"))) {
+                            sortingType = args[++i];
+                        } else {
+                            System.out.println("No sorting type defined!");
+                            System.exit(0);
+                        }
+                    } else if (args[i].equalsIgnoreCase("-dataType")) {
+                        if (args.length - 1 > i && !(args[i + 1].startsWith("-"))) {
+                            dataType = DataType.valueOf(args[++i].toUpperCase());
+                        } else {
+                            System.out.println("No data type defined!");
+                            System.exit(0);
+                        }
+                    }
+                }
             }
         }
         sortUtility(dataType, sortingType);

@@ -10,12 +10,13 @@ public class LongProcessor extends DataProcessor<Long> {
     @Override
     public void readData() {
         while (scanner.hasNext()) {
-            data.add(Long.parseLong(scanner.next().trim()));
+            String input = "";
+            try {
+                input = scanner.next().trim();
+                data.add(Long.parseLong(input));
+            } catch (Exception ignored) {
+                System.out.println("\"" + input + "\" is not a long. It will be skipped.");
+            }
         }
-    }
-
-    @Override
-    public DataType getType() {
-        return type;
     }
 }

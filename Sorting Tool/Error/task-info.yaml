@@ -19,6 +19,244 @@ files:
         }
     }
   learner_created: false
+- name: src/sorting/DataType.java
+  visible: true
+  text: |
+    package sorting;
+
+    public enum DataType {
+        LONG("numbers", "greatest number", " "),
+        LINE("lines", "longest line", "\n"),
+        WORD("words", "longest word", " ");
+
+        private final String totalToPrint;
+        private final String maxToPrint;
+        private final String separator;
+
+        DataType(String totalToPrint, String maxToPrint, String separator) {
+            this.totalToPrint = totalToPrint;
+            this.maxToPrint = maxToPrint;
+            this.separator = separator;
+        }
+
+        public String getTotalToPrint() {
+            return totalToPrint;
+        }
+
+        public String getMaxToPrint() {
+            return maxToPrint;
+        }
+
+        public String getSeparator() {
+            return separator;
+        }
+    }
+  learner_created: true
+- name: src/sorting/LongProcessor.java
+  visible: true
+  text: |
+    package sorting;
+
+    public class LongProcessor extends DataProcessor<Long> {
+
+        public LongProcessor() {
+            super.type = DataType.LONG;
+            super.naturalComparator = Long::compareTo;
+        }
+
+        @Override
+        public void readData() {
+            while (scanner.hasNext()) {
+                data.add(Long.parseLong(scanner.next().trim()));
+            }
+        }
+    }
+  learner_created: true
+- name: src/sorting/DataProcessor.java
+  visible: true
+  text: |
+    package sorting;
+
+    import java.util.*;
+    import java.util.stream.Collectors;
+
+    public abstract class DataProcessor<T> {
+
+        static final Scanner scanner = new Scanner(System.in);
+        final ArrayList<T> data = new ArrayList<>();
+        private ArrayList<T> naturalSortedData;
+        Comparator<T> naturalComparator;
+        private final Comparator<T> counterComparator = (d1, d2) -> {
+            long d1Count = data.stream().filter(d -> d.equals(d1)).count();
+            long d2Count = data.stream().filter(d -> d.equals(d2)).count();
+            if (d1Count > d2Count) {
+                return 1;
+            } else if (d1Count < d2Count) {
+                return -1;
+            } else {
+                return naturalComparator.compare(d1, d2);
+            }
+        };
+        TreeMap<T, Integer> countSortedDataMap = new TreeMap<>(counterComparator);
+        DataType type;
+
+        abstract void readData();
+
+        void naturalSort() {
+            naturalSortedData = data.stream().sorted(naturalComparator).collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        void createCountSortedDataMap() {
+            for (var d : naturalSortedData) {
+                if (countSortedDataMap.containsKey(d)) {
+                    countSortedDataMap.replace(d, countSortedDataMap.get(d) + 1);
+                } else {
+                    countSortedDataMap.put(d, 1);
+                }
+            }
+        }
+
+        int getSize() {
+            return data.size();
+        }
+
+        void printSortAnalysis(String sortingType) {
+            switch (sortingType) {
+                case "natural" -> {
+                    naturalSort();
+                    System.out.print("Total " + type.getTotalToPrint() + ": " + data.size() + "\n" + "Sorted data:" + getNaturalSortedDataAsString());
+                }
+                case "byCount" -> {
+                    naturalSort();
+                    createCountSortedDataMap();
+                    System.out.print("Total " + type.getTotalToPrint() + ": " + data.size() + "\n" + getCountSortedDataMapAsString());
+                }
+            }
+        }
+
+        public String getNaturalSortedDataAsString() {
+            StringBuilder out = new StringBuilder();
+            for (var d : naturalSortedData) {
+                out.append(type.getSeparator()).append(d).append(type.getSeparator());
+            }
+            return out.toString();
+        }
+
+        public String getCountSortedDataMapAsString() {
+            StringBuilder out = new StringBuilder();
+            for (var entry : countSortedDataMap.entrySet()) {
+                out.append(entry.getKey()).append(": ").append(entry.getValue()).append(" time(s), ").append((int) (((double) entry.getValue() / (double) getSize()) * 100)).append("%\n");
+            }
+            return out.toString();
+        }
+    }
+  learner_created: true
+- name: src/sorting/App.java
+  visible: true
+  text: |
+    package sorting;
+
+    public class App {
+        private App() {
+        }
+
+        static void start(String[] args) {
+            sort(args);
+        }
+
+        private static void sort(String[] args) {
+            DataType dataType = DataType.LONG;
+            String sortingType = "natural";
+            int readStep = 2;
+            for (int i = 0; i < args.length; i += readStep) {
+                if (args[i].equalsIgnoreCase("-sortingType") && (args.length - 1 > i && !(args[i + 1].startsWith("-")))) {
+                    sortingType = args[i + 1];
+                } else if (args[i].equalsIgnoreCase("-sortingType") && ((args.length - 1 == i) || (args[i + 1].startsWith("-")))) {
+                    readStep = 1;
+                }
+                if (args[i].equalsIgnoreCase("-dataType") && (args.length - 1 > i && !(args[i + 1].startsWith("-")))) {
+                    dataType = DataType.valueOf(args[i + 1].toUpperCase());
+                }
+            }
+            sortUtility(dataType, sortingType);
+        }
+
+        private static void sortUtility(DataType dataType, String sortingType) {
+            switch (dataType) {
+                case LONG -> {
+                    DataProcessor<Long> dataProcessor = new LongProcessor();
+                    dataProcessor.readData();
+                    dataProcessor.printSortAnalysis(sortingType);
+                    System.exit(0);
+                }
+                case LINE -> {
+                    DataProcessor<String> dataProcessor = new LineProcessor();
+                    dataProcessor.readData();
+                    dataProcessor.printSortAnalysis(sortingType);
+                    System.exit(0);
+                }
+                case WORD -> {
+                    DataProcessor<String> dataProcessor = new WordProcessor();
+                    dataProcessor.readData();
+                    dataProcessor.printSortAnalysis(sortingType);
+                    System.exit(0);
+                }
+            }
+        }
+    }
+  learner_created: true
+- name: src/sorting/WordProcessor.java
+  visible: true
+  text: |
+    package sorting;
+
+    public class WordProcessor extends DataProcessor<String> {
+
+        public WordProcessor() {
+            super.type = DataType.WORD;
+            super.naturalComparator = (l1, l2) -> {
+                if (l1.compareToIgnoreCase(l2) == 0) {
+                    return Integer.compare(l1.length(), l2.length());
+                } else {
+                    return l1.compareToIgnoreCase(l2);
+                }
+            };
+        }
+
+        @Override
+        public void readData() {
+            while (scanner.hasNext()) {
+                data.add(scanner.next().trim());
+            }
+        }
+    }
+  learner_created: true
+- name: src/sorting/LineProcessor.java
+  visible: true
+  text: |
+    package sorting;
+
+    public class LineProcessor extends DataProcessor<String> {
+
+        public LineProcessor() {
+            super.type = DataType.LINE;
+            super.naturalComparator = (l1, l2) -> {
+                if (l1.compareToIgnoreCase(l2) == 0) {
+                    return Integer.compare(l1.length(), l2.length());
+                } else {
+                    return l1.compareToIgnoreCase(l2);
+                }
+            };
+        }
+
+        @Override
+        public void readData() {
+            while (scanner.hasNext()) {
+                data.add(scanner.nextLine().trim());
+            }
+        }
+    }
+  learner_created: true
 - name: test/common/SortingToolStage5Test.kt
   visible: false
   text: |+
@@ -425,5 +663,8 @@ files:
 
   learner_created: false
 feedback_link: https://hyperskill.org/learn/step/5385#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Thu, 31 Mar 2022 10:52:45 UTC
 record: -1
