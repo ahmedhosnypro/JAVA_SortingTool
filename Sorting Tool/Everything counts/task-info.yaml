@@ -19,6 +19,253 @@ files:
         }
     }
   learner_created: false
+- name: src/sorting/DataType.java
+  visible: true
+  text: |
+    package sorting;
+
+    public enum DataType {
+        LONG("numbers", "greatest number"),
+        LINE("lines", "longest line"),
+        WORD("words", "longest word");
+
+        private final String totalToPrint;
+        private final String maxToPrint;
+
+        DataType(String totalToPrint, String maxToPrint) {
+            this.totalToPrint = totalToPrint;
+            this.maxToPrint = maxToPrint;
+        }
+
+        public String getTotalToPrint() {
+            return totalToPrint;
+        }
+
+        public String getMaxToPrint() {
+            return maxToPrint;
+        }
+    }
+  learner_created: true
+- name: src/sorting/LongProcessor.java
+  visible: true
+  text: |
+    package sorting;
+
+    public class LongProcessor extends DataProcessor<Long> {
+
+        public LongProcessor() {
+            super.type = DataType.LONG;
+            super.comparator = Long::compareTo;
+        }
+
+        @Override
+        public void readData() {
+            while (scanner.hasNext()) {
+                data.add(Long.parseLong(scanner.next().trim()));
+            }
+        }
+
+        @Override
+        public DataType getType() {
+            return type;
+        }
+    }
+  learner_created: true
+- name: src/sorting/DataProcessor.java
+  visible: true
+  text: |
+    package sorting;
+
+    import java.util.*;
+
+    public abstract class DataProcessor<T> {
+
+        static final Scanner scanner = new Scanner(System.in);
+        ArrayList<T> data = new ArrayList<>();
+        DataType type;
+        T max;
+        int maxCount;
+        int maxPercent;
+        Comparator<T> comparator;
+
+        abstract void readData();
+
+        void sortData() {
+            if (Objects.nonNull(comparator)){
+                data.sort(comparator);
+            }
+        }
+
+        int getSize() {
+            return data.size();
+        }
+
+        public List<T> getData() {
+            return data;
+        }
+
+        public T getMax() {
+            return max;
+        }
+
+        public int getMaxCount() {
+            return maxCount;
+        }
+
+        public DataType getType() {
+            return type;
+        }
+
+        public int getMaxPercent() {
+            return maxPercent;
+        }
+
+        public Comparator<T> getComparator() {
+            return comparator;
+        }
+
+        public void setMax(T max) {
+            this.max = max;
+        }
+
+        public void setMaxCount(int maxCount) {
+            this.maxCount = maxCount;
+        }
+
+        public void setMaxPercent() {
+            maxPercent = (int) (((double) maxCount / (double) getSize()) * 100);
+        }
+    }
+  learner_created: true
+- name: src/sorting/App.java
+  visible: true
+  text: |
+    package sorting;
+
+    public class App {
+        private App() {
+        }
+
+        static void start(String[] args) {
+            if (args.length == 0) {
+                processWords();
+            } else {
+                for (var arg : args) {
+                    if (arg.equalsIgnoreCase("-sortIntegers")) {
+                        sortIntegers();
+                        return;
+                    }
+                }
+                if (args[0].equalsIgnoreCase("-dataType")) {
+                    String dataType = args[1];
+                    switch (dataType) {
+                        case "long" -> processLongs();
+                        case "line" -> processLine();
+                        case "word" -> processWords();
+                    }
+                }
+            }
+        }
+
+        private static void processLongs() {
+            DataProcessor<Long> dataProcessor = new LongProcessor();
+            Analyzer<Long> analyzer = new Analyzer<>();
+            dataProcessor.readData();
+            analyzer.setStrategy(new LongAnalyzer());
+            analyzer.analyze(dataProcessor);
+            System.out.println("Total " + dataProcessor.getType().getTotalToPrint() + ": " + dataProcessor.getSize() + ".\n"
+                    + "The " + dataProcessor.getType().getMaxToPrint() + ": " + dataProcessor.getMax()
+                    + " (" + dataProcessor.getMaxCount() + " time(s), " + dataProcessor.getMaxPercent() + "%).");
+        }
+
+        private static void sortIntegers() {
+            DataProcessor<Long> dataProcessor = new LongProcessor();
+            dataProcessor.readData();
+            dataProcessor.sortData();
+            System.out.print("Total " + dataProcessor.getType().getTotalToPrint() + ": " + dataProcessor.getSize() + ".\n"
+                    + "Sorted data: ");
+            dataProcessor.getData().forEach(d -> System.out.print(d + " "));
+        }
+
+        private static void processLine() {
+            DataProcessor<String> dataProcessor = new LineProcessor();
+            Analyzer<String> analyzer = new Analyzer<>();
+            dataProcessor.readData();
+            analyzer.setStrategy(new StringAnalyzer());
+            analyzer.analyze(dataProcessor);
+            System.out.println("Total " + dataProcessor.getType().getTotalToPrint() + ": " + dataProcessor.getSize() + ".\n"
+                    + "The " + dataProcessor.getType().getMaxToPrint() + ":\n" + dataProcessor.getMax() + "\n"
+                    + "(" + dataProcessor.getMaxCount() + " time(s), " + dataProcessor.getMaxPercent() + "%).");
+        }
+
+        private static void processWords() {
+            DataProcessor<String> dataProcessor = new WordProcessor();
+            Analyzer<String> analyzer = new Analyzer<>();
+            dataProcessor.readData();
+            analyzer.setStrategy(new StringAnalyzer());
+            analyzer.analyze(dataProcessor);
+            System.out.println("Total " + dataProcessor.getType().getTotalToPrint() + ": " + dataProcessor.getSize() + ".\n"
+                    + "The " + dataProcessor.getType().getMaxToPrint() + ": " + dataProcessor.getMax()
+                    + " (" + dataProcessor.getMaxCount() + " time(s), " + dataProcessor.getMaxPercent() + "%).");
+        }
+    }
+  learner_created: true
+- name: src/sorting/WordProcessor.java
+  visible: true
+  text: |
+    package sorting;
+
+    public class WordProcessor extends DataProcessor<String> {
+
+        public WordProcessor() {
+            super.type = DataType.WORD;
+            super.comparator = (l1, l2) -> {
+                if (l1.length() > l2.length()) {
+                    return 1;
+                } else if (l1.length() < l2.length()) {
+                    return -1;
+                } else {
+                    return l1.compareToIgnoreCase(l2);
+                }
+            };
+        }
+
+        @Override
+        public void readData() {
+            while (scanner.hasNext()) {
+                data.add(scanner.next().trim());
+            }
+        }
+    }
+  learner_created: true
+- name: src/sorting/LineProcessor.java
+  visible: true
+  text: |
+    package sorting;
+
+    public class LineProcessor extends DataProcessor<String> {
+
+        public LineProcessor() {
+            super.type = DataType.LINE;
+            super.comparator = (l1, l2) -> {
+                if (l1.length() > l2.length()) {
+                    return 1;
+                } else if (l1.length() < l2.length()) {
+                    return -1;
+                } else {
+                    return l1.compareToIgnoreCase(l2);
+                }
+            };
+        }
+
+        @Override
+        public void readData() {
+            while (scanner.hasNext()) {
+                data.add(scanner.nextLine().trim());
+            }
+        }
+    }
+  learner_created: true
 - name: test/common/SortingToolStage4Test.kt
   visible: false
   text: |+
@@ -367,5 +614,8 @@ files:
 
   learner_created: false
 feedback_link: https://hyperskill.org/learn/step/5384#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Thu, 31 Mar 2022 09:35:12 UTC
 record: -1

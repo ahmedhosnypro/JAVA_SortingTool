@@ -4,7 +4,7 @@ public class LongProcessor extends DataProcessor<Long> {
 
     public LongProcessor() {
         super.type = DataType.LONG;
-        super.comparator = Long::compareTo;
+        super.naturalComparator = Long::compareTo;
     }
 
     @Override

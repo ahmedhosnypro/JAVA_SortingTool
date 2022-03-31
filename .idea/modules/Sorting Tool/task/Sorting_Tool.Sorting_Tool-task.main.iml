@@ -43,7 +43,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_14">
+  <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/../../../../Sorting Tool/task/out/production/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../../Sorting Tool/task/src">
